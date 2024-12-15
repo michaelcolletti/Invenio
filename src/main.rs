@@ -5,22 +5,6 @@ use std::process::Command;
 fn main() {
     let mut report = String::new();
 
-    // Discover AWS components
-    report.push_str("# AWS Components\n");
-    report.push_str(&discover_aws());
-
-    // Discover GCP components
-    report.push_str("# GCP Components\n");
-    report.push_str(&discover_gcp());
-
-    // Discover OCI components
-    report.push_str("# OCI Components\n");
-    report.push_str(&discover_oci());
-
-    // Discover Azure components
-    report.push_str("# Azure Components\n");
-    report.push_str(&discover_azure());
-
     // Discover on-premises components
     report.push_str("# On-Premises Components\n");
     report.push_str(&discover_on_premises());
@@ -29,7 +13,6 @@ fn main() {
     let mut file = File::create("invenio.md").expect("Unable to create file");
     file.write_all(report.as_bytes()).expect("Unable to write data");
 }
-
 
 fn discover_on_premises() -> String {
     // Placeholder for on-premises discovery logic
@@ -265,78 +248,20 @@ fn discover_aix() -> String {
         .expect("Failed to execute oslevel command");
     report.push_str(&String::from_utf8_lossy(&output.stdout));
 
-// Discover logical volumes
-report.push_str("### Logical Volumes\n");
-let output = Command::new("lsvg")
-    .arg("-o")
-    .output()
-    .expect("Failed to execute lsvg command for logical volumes");
-report.push_str(&String::from_utf8_lossy(&output.stdout));
-
-// Discover volume groups
-report.push_str("### Volume Groups\n");
-let output = Command::new("lsvg")
-    .output()
-    .expect("Failed to execute lsvg command for volume groups");
-report.push_str(&String::from_utf8_lossy(&output.stdout));
-
-report
-}
-
-fn check_command_availability(command: &str) -> bool {
-    Command::new("which")
-        .arg(command)
+    // Discover logical volumes
+    report.push_str("### Logical Volumes\n");
+    let output = Command::new("lsvg")
+        .arg("-o")
         .output()
-        .map(|output| output.status.success())
-        .unwrap_or(false)
-}
+        .expect("Failed to execute lsvg command for logical volumes");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
 
-fn discover_aws() -> String {
-    if !check_command_availability("aws") {
-        return "AWS CLI is not available.\n".to_string();
-    }
-    let output = Command::new("aws")
-        .arg("ec2")
-        .arg("describe-instances")
+    // Discover volume groups
+    report.push_str("### Volume Groups\n");
+    let output = Command::new("lsvg")
         .output()
-        .expect("Failed to execute AWS CLI command");
-    String::from_utf8_lossy(&output.stdout).to_string()
-}
+        .expect("Failed to execute lsvg command for volume groups");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
 
-fn discover_gcp() -> String {
-    if !check_command_availability("gcloud") {
-        return "GCP CLI is not available.\n".to_string();
-    }
-    let output = Command::new("gcloud")
-        .arg("compute")
-        .arg("instances")
-        .arg("list")
-        .output()
-        .expect("Failed to execute GCP CLI command");
-    String::from_utf8_lossy(&output.stdout).to_string()
-}
-
-fn discover_oci() -> String {
-    if !check_command_availability("oci") {
-        return "OCI CLI is not available.\n".to_string();
-    }
-    let output = Command::new("oci")
-        .arg("compute")
-        .arg("instance")
-        .arg("list")
-        .output()
-        .expect("Failed to execute OCI CLI command");
-    String::from_utf8_lossy(&output.stdout).to_string()
-}
-
-fn discover_azure() -> String {
-    if !check_command_availability("az") {
-        return "Azure CLI is not available.\n".to_string();
-    }
-    let output = Command::new("az")
-        .arg("vm")
-        .arg("list")
-        .output()
-        .expect("Failed to execute Azure CLI command");
-    String::from_utf8_lossy(&output.stdout).to_string()
+    report
 }
