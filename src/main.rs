@@ -1,4 +1,4 @@
-use std::fs::File;
+use std::fs::File; 
 use std::io::Write;
 use std::process::Command;
 
@@ -10,6 +10,7 @@ fn main() {
     report.push_str(&discover_on_premises());
 
     // Write report to invenio.md
+    // cspell:ignore invenio
     let mut file = File::create("invenio.md").expect("Unable to create file");
     file.write_all(report.as_bytes()).expect("Unable to write data");
 }
@@ -29,6 +30,9 @@ fn discover_on_premises() -> String {
     // Discover Unix systems
     report.push_str("## Unix Systems\n");
     report.push_str(&discover_unix());
+    // Discover AIX systems
+    report.push_str("## AIX Systems\n");
+    report.push_str(&discover_aix());
 
     report
 }
@@ -265,3 +269,4 @@ fn discover_aix() -> String {
 
     report
 }
+
