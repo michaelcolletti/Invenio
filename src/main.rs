@@ -30,47 +30,6 @@ fn main() {
     file.write_all(report.as_bytes()).expect("Unable to write data");
 }
 
-fn discover_aws() -> String {
-    // Placeholder for AWS discovery logic
-    let output = Command::new("aws")
-        .arg("ec2")
-        .arg("describe-instances")
-        .output()
-        .expect("Failed to execute AWS CLI command");
-    String::from_utf8_lossy(&output.stdout).to_string()
-}
-
-fn discover_gcp() -> String {
-    // Placeholder for GCP discovery logic
-    let output = Command::new("gcloud")
-        .arg("compute")
-        .arg("instances")
-        .arg("list")
-        .output()
-        .expect("Failed to execute GCP CLI command");
-    String::from_utf8_lossy(&output.stdout).to_string()
-}
-
-fn discover_oci() -> String {
-    // Placeholder for OCI discovery logic
-    let output = Command::new("oci")
-        .arg("compute")
-        .arg("instance")
-        .arg("list")
-        .output()
-        .expect("Failed to execute OCI CLI command");
-    String::from_utf8_lossy(&output.stdout).to_string()
-}
-
-fn discover_azure() -> String {
-    // Placeholder for Azure discovery logic
-    let output = Command::new("az")
-        .arg("vm")
-        .arg("list")
-        .output()
-        .expect("Failed to execute Azure CLI command");
-    String::from_utf8_lossy(&output.stdout).to_string()
-}
 
 fn discover_on_premises() -> String {
     // Placeholder for on-premises discovery logic
@@ -324,3 +283,60 @@ report.push_str(&String::from_utf8_lossy(&output.stdout));
 report
 }
 
+fn check_command_availability(command: &str) -> bool {
+    Command::new("which")
+        .arg(command)
+        .output()
+        .map(|output| output.status.success())
+        .unwrap_or(false)
+}
+
+fn discover_aws() -> String {
+    if !check_command_availability("aws") {
+        return "AWS CLI is not available.\n".to_string();
+    }
+    let output = Command::new("aws")
+        .arg("ec2")
+        .arg("describe-instances")
+        .output()
+        .expect("Failed to execute AWS CLI command");
+    String::from_utf8_lossy(&output.stdout).to_string()
+}
+
+fn discover_gcp() -> String {
+    if !check_command_availability("gcloud") {
+        return "GCP CLI is not available.\n".to_string();
+    }
+    let output = Command::new("gcloud")
+        .arg("compute")
+        .arg("instances")
+        .arg("list")
+        .output()
+        .expect("Failed to execute GCP CLI command");
+    String::from_utf8_lossy(&output.stdout).to_string()
+}
+
+fn discover_oci() -> String {
+    if !check_command_availability("oci") {
+        return "OCI CLI is not available.\n".to_string();
+    }
+    let output = Command::new("oci")
+        .arg("compute")
+        .arg("instance")
+        .arg("list")
+        .output()
+        .expect("Failed to execute OCI CLI command");
+    String::from_utf8_lossy(&output.stdout).to_string()
+}
+
+fn discover_azure() -> String {
+    if !check_command_availability("az") {
+        return "Azure CLI is not available.\n".to_string();
+    }
+    let output = Command::new("az")
+        .arg("vm")
+        .arg("list")
+        .output()
+        .expect("Failed to execute Azure CLI command");
+    String::from_utf8_lossy(&output.stdout).to_string()
+}
