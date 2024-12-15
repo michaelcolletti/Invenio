@@ -2,34 +2,7 @@ use std::fs::File;
 use std::io::Write;
 use std::process::Command;
 
-fn main() {
-    let mut report = String::new();
-
-    // Discover AWS components
-    report.push_str("# AWS Components\n");
-    report.push_str(&discover_aws());
-
-    // Discover GCP components
-    report.push_str("# GCP Components\n");
-    report.push_str(&discover_gcp());
-
-    // Discover OCI components
-    report.push_str("# OCI Components\n");
-    report.push_str(&discover_oci());
-
-    // Discover Azure components
-    report.push_str("# Azure Components\n");
-    report.push_str(&discover_azure());
-
-    // Discover on-premises components
-    report.push_str("# On-Premises Components\n");
-    report.push_str(&discover_on_premises());
-
-    // Write report to invenio.md
-    // cspell:ignore invenio
-    let mut file = File::create("invenio.md").expect("Unable to create file");
-    file.write_all(report.as_bytes()).expect("Unable to write data");
-}
+// Removed duplicate main function
 
 
 fn discover_on_premises() -> String {
@@ -270,7 +243,7 @@ fn discover_aix() -> String {
     report.push_str(&String::from_utf8_lossy(&output.stdout));
 
 // Discover logical volumes
-report.push_str("### Logical Volumes\n");
+        report.push_str(&String::from_utf8_lossy(&output.stdout));
 let output = Command::new("lsvg")
     .arg("-o")
     .output()
@@ -286,7 +259,6 @@ report.push_str(&String::from_utf8_lossy(&output.stdout));
 
 report
 }
-
 fn check_command_availability(command: &str) -> bool {
     Command::new("which")
         .arg(command)
@@ -294,7 +266,6 @@ fn check_command_availability(command: &str) -> bool {
         .map(|output| output.status.success())
         .unwrap_or(false)
 }
-
 fn discover_aws() -> String {
     if !check_command_availability("aws") {
         return "AWS CLI is not available.\n".to_string();
@@ -333,15 +304,55 @@ fn discover_oci() -> String {
     String::from_utf8_lossy(&output.stdout).to_string()
 }
 
-fn discover_azure() -> String {
-    if !check_command_availability("az") {
-        return "Azure CLI is not available.\n".to_string();
+fn get_os_type() -> String {
+    if cfg!(target_os = "windows") {
+        "windows".to_string()
+    } else if cfg!(target_os = "linux") {
+        "linux".to_string()
+    } else if cfg!(target_os = "macos") {
+        "macos".to_string()
+    } else if cfg!(target_os = "freebsd") || cfg!(target_os = "openbsd") || cfg!(target_os = "netbsd") || cfg!(target_os = "solaris") {
+        "unix".to_string()
+    } else if cfg!(target_os = "unix") {
+        "unix".to_string()
+    } else if cfg!(target_os = "aix") {
+        "aix".to_string()
+    } else {
+        "unknown".to_string()
     }
-    let output = Command::new("az")
-        .arg("vm")
-        .arg("list")
-        .output()
-        .expect("Failed to execute Azure CLI command");
-    String::from_utf8_lossy(&output.stdout).to_string()
 }
 
+fn main() {
+    let os_type = get_os_type();
+    let mut report = String::new();
+
+    match os_type.as_str() {
+        "windows" => {
+            report.push_str("# Windows Systems\n");
+            report.push_str(&discover_windows());
+        }
+        "linux" => {
+            report.push_str("# Linux Systems\n");
+            report.push_str(&discover_linux());
+        }
+        "macos" => {
+            report.push_str("# macOS Systems\n");
+            // Add macOS discovery logic here
+        }
+        "unix" => {
+            report.push_str("# Unix Systems\n");
+            report.push_str(&discover_unix());
+        }
+        "aix" => {
+            report.push_str("# AIX Systems\n");
+            report.push_str(&discover_aix());
+        }
+        _ => {
+            report.push_str("Unsupported OS\n");
+        }
+    }
+
+    // Write report to invenio.md
+    let mut file = File::create("invenio.md").expect("Unable to create file");
+    file.write_all(report.as_bytes()).expect("Unable to write data");
+}
