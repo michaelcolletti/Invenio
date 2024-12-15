@@ -254,6 +254,7 @@ fn discover_unix() -> String {
 
     report
 }
+
 fn discover_aix() -> String {
     let mut report = String::new();
 
@@ -306,13 +307,12 @@ fn discover_aix() -> String {
     report.push_str(&String::from_utf8_lossy(&output.stdout));
 
     report
+    
+    report.clone();
 // Discover logical volumes
 report.push_str("### Logical Volumes\n");
 let output = Command::new("lsvg")
     .arg("-o")
-    .arg("|")
-    .arg("lsvg")
-    .arg("-il")
     .output()
     .expect("Failed to execute lsvg command for logical volumes");
 report.push_str(&String::from_utf8_lossy(&output.stdout));
@@ -325,3 +325,5 @@ let output = Command::new("lsvg")
 report.push_str(&String::from_utf8_lossy(&output.stdout));
 
 report
+}
+
