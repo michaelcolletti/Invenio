@@ -306,9 +306,6 @@ fn discover_aix() -> String {
         .expect("Failed to execute oslevel command");
     report.push_str(&String::from_utf8_lossy(&output.stdout));
 
-    report
-    
-    report.clone();
 // Discover logical volumes
 report.push_str("### Logical Volumes\n");
 let output = Command::new("lsvg")
