@@ -19,3 +19,31 @@ Cargo.lock
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+invenio
+
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test output
+*.log
+
+# Compiled object files, static and dynamic libraries
+*.o
+*.a
+*.lib
+
+# Generated documentation
+/target/doc
+
+# Node modules
+node_modules/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
