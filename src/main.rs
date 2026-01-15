@@ -259,6 +259,293 @@ report.push_str(&String::from_utf8_lossy(&output.stdout));
 
 report
 }
+
+fn discover_macos() -> String {
+    let mut report = String::new();
+
+    // Hardware Overview
+    report.push_str("### Hardware Overview\n");
+    let output = Command::new("system_profiler")
+        .arg("SPHardwareDataType")
+        .output()
+        .expect("Failed to execute system_profiler for hardware");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // CPU Information (detailed)
+    report.push_str("\n### Detailed CPU Information\n");
+    let cpu_info = vec![
+        ("Brand", "machdep.cpu.brand_string"),
+        ("Core Count", "machdep.cpu.core_count"),
+        ("Thread Count", "machdep.cpu.thread_count"),
+        ("L1 Cache Size", "hw.l1icachesize"),
+        ("L2 Cache Size", "hw.l2cachesize"),
+        ("L3 Cache Size", "hw.l3cachesize"),
+        ("CPU Frequency", "hw.cpufrequency"),
+        ("Bus Frequency", "hw.busfrequency"),
+        ("CPU Type", "hw.cputype"),
+        ("CPU Subtype", "hw.cpusubtype"),
+    ];
+
+    for (label, key) in cpu_info {
+        let output = Command::new("sysctl")
+            .arg("-n")
+            .arg(key)
+            .output();
+        if let Ok(output) = output {
+            if output.status.success() {
+                let value = String::from_utf8_lossy(&output.stdout).trim().to_string();
+                report.push_str(&format!("{}: {}\n", label, value));
+            }
+        }
+    }
+
+    // Memory Information (detailed)
+    report.push_str("\n### Memory Information\n");
+    let output = Command::new("system_profiler")
+        .arg("SPMemoryDataType")
+        .output()
+        .expect("Failed to execute system_profiler for memory");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // Additional memory details from sysctl
+    let mem_info = vec![
+        ("Physical Memory", "hw.memsize"),
+        ("Page Size", "hw.pagesize"),
+    ];
+
+    for (label, key) in mem_info {
+        let output = Command::new("sysctl")
+            .arg("-n")
+            .arg(key)
+            .output();
+        if let Ok(output) = output {
+            if output.status.success() {
+                let value = String::from_utf8_lossy(&output.stdout).trim().to_string();
+                report.push_str(&format!("{}: {}\n", label, value));
+            }
+        }
+    }
+
+    // Storage Information (detailed)
+    report.push_str("\n### Storage Devices\n");
+    let output = Command::new("system_profiler")
+        .arg("SPStorageDataType")
+        .output()
+        .expect("Failed to execute system_profiler for storage");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // NVMe Information
+    report.push_str("\n### NVMe Devices\n");
+    let output = Command::new("system_profiler")
+        .arg("SPNVMeDataType")
+        .output()
+        .expect("Failed to execute system_profiler for NVMe");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // Disk utility information
+    report.push_str("\n### Disk Layout\n");
+    let output = Command::new("diskutil")
+        .arg("list")
+        .output()
+        .expect("Failed to execute diskutil list");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // SATA Information
+    report.push_str("\n### SATA Devices\n");
+    let output = Command::new("system_profiler")
+        .arg("SPSerialATADataType")
+        .output()
+        .expect("Failed to execute system_profiler for SATA");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // Network Information (comprehensive)
+    report.push_str("\n### Network Overview\n");
+    let output = Command::new("system_profiler")
+        .arg("SPNetworkDataType")
+        .output()
+        .expect("Failed to execute system_profiler for network");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // Ethernet Details
+    report.push_str("\n### Ethernet Information\n");
+    let output = Command::new("system_profiler")
+        .arg("SPEthernetDataType")
+        .output()
+        .expect("Failed to execute system_profiler for ethernet");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // WiFi/AirPort Details
+    report.push_str("\n### WiFi (AirPort) Information\n");
+    let output = Command::new("system_profiler")
+        .arg("SPAirPortDataType")
+        .output()
+        .expect("Failed to execute system_profiler for AirPort");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // Bluetooth Information
+    report.push_str("\n### Bluetooth Information\n");
+    let output = Command::new("system_profiler")
+        .arg("SPBluetoothDataType")
+        .output()
+        .expect("Failed to execute system_profiler for Bluetooth");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // Network interfaces (ifconfig)
+    report.push_str("\n### Network Interfaces (ifconfig)\n");
+    let output = Command::new("ifconfig")
+        .output()
+        .expect("Failed to execute ifconfig");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // Network routes
+    report.push_str("\n### Network Routing Table\n");
+    let output = Command::new("netstat")
+        .arg("-nr")
+        .output()
+        .expect("Failed to execute netstat");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // Network protocols statistics
+    report.push_str("\n### Network Protocol Statistics\n");
+    let output = Command::new("netstat")
+        .arg("-s")
+        .output()
+        .expect("Failed to execute netstat -s");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // Display/Graphics Information
+    report.push_str("\n### Display and Graphics Information\n");
+    let output = Command::new("system_profiler")
+        .arg("SPDisplaysDataType")
+        .output()
+        .expect("Failed to execute system_profiler for displays");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // Power and Battery Information
+    report.push_str("\n### Power and Battery Information\n");
+    let output = Command::new("system_profiler")
+        .arg("SPPowerDataType")
+        .output()
+        .expect("Failed to execute system_profiler for power");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // Power management settings
+    report.push_str("\n### Power Management Settings\n");
+    let output = Command::new("pmset")
+        .arg("-g")
+        .output()
+        .expect("Failed to execute pmset");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // Battery health and cycles (if applicable)
+    report.push_str("\n### Battery Status\n");
+    let output = Command::new("pmset")
+        .arg("-g")
+        .arg("batt")
+        .output()
+        .expect("Failed to execute pmset -g batt");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // Thermal information (via powermetrics - requires root, so may fail)
+    report.push_str("\n### Thermal Information (requires root privileges)\n");
+    let output = Command::new("sudo")
+        .arg("-n")
+        .arg("powermetrics")
+        .arg("--samplers")
+        .arg("thermal")
+        .arg("-n")
+        .arg("1")
+        .arg("-i")
+        .arg("1000")
+        .output();
+    if let Ok(output) = output {
+        if output.status.success() {
+            report.push_str(&String::from_utf8_lossy(&output.stdout));
+        } else {
+            report.push_str("Thermal information unavailable (requires root privileges)\n");
+        }
+    } else {
+        report.push_str("Thermal information unavailable (requires root privileges)\n");
+    }
+
+    // USB Devices
+    report.push_str("\n### USB Devices\n");
+    let output = Command::new("system_profiler")
+        .arg("SPUSBDataType")
+        .output()
+        .expect("Failed to execute system_profiler for USB");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // Thunderbolt/USB-C Information
+    report.push_str("\n### Thunderbolt Information\n");
+    let output = Command::new("system_profiler")
+        .arg("SPThunderboltDataType")
+        .output()
+        .expect("Failed to execute system_profiler for Thunderbolt");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // PCI Devices
+    report.push_str("\n### PCI Devices\n");
+    let output = Command::new("system_profiler")
+        .arg("SPPCIDataType")
+        .output()
+        .expect("Failed to execute system_profiler for PCI");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // Audio Information
+    report.push_str("\n### Audio Devices\n");
+    let output = Command::new("system_profiler")
+        .arg("SPAudioDataType")
+        .output()
+        .expect("Failed to execute system_profiler for audio");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // Camera Information
+    report.push_str("\n### Camera Information\n");
+    let output = Command::new("system_profiler")
+        .arg("SPCameraDataType")
+        .output()
+        .expect("Failed to execute system_profiler for camera");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // OS Information
+    report.push_str("\n### Operating System Information\n");
+    let output = Command::new("system_profiler")
+        .arg("SPSoftwareDataType")
+        .output()
+        .expect("Failed to execute system_profiler for software");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // Kernel and system information
+    report.push_str("\n### Kernel Information\n");
+    let output = Command::new("uname")
+        .arg("-a")
+        .output()
+        .expect("Failed to execute uname");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // System uptime
+    report.push_str("\n### System Uptime\n");
+    let output = Command::new("uptime")
+        .output()
+        .expect("Failed to execute uptime");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    // I/O Registry hardware tree (abbreviated for key components)
+    report.push_str("\n### I/O Registry - Platform Expert\n");
+    let output = Command::new("ioreg")
+        .arg("-l")
+        .arg("-p")
+        .arg("IODeviceTree")
+        .arg("-n")
+        .arg("efi")
+        .output()
+        .expect("Failed to execute ioreg");
+    report.push_str(&String::from_utf8_lossy(&output.stdout));
+
+    report
+}
+
 fn check_command_availability(command: &str) -> bool {
     Command::new("which")
         .arg(command)
@@ -337,7 +624,7 @@ fn main() {
         }
         "macos" => {
             report.push_str("# macOS Systems\n");
-            // Add macOS discovery logic here
+            report.push_str(&discover_macos());
         }
         "unix" => {
             report.push_str("# Unix Systems\n");
