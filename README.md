@@ -3,7 +3,7 @@
 **Enterprise-Grade System Discovery & Inventory Tool for the Layer Migration Platform**
 
 [![Rust](https://github.com/michaelcolletti/Invenio/actions/workflows/rust.yml/badge.svg)](https://github.com/michaelcolletti/Invenio/actions/workflows/rust.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![License: CC BY-NC 4.0](https://img.shields.io/badge/License-CC%20BY--NC%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Rust Version](https://img.shields.io/badge/rust-1.70%2B-orange.svg)](https://www.rust-lang.org/)
 
 ---
@@ -347,7 +347,9 @@ Invenio/
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0)**.
+
+You are free to share and adapt this work for non-commercial purposes with appropriate attribution. See the [LICENSE](LICENSE) file for details, or visit [creativecommons.org/licenses/by-nc/4.0](https://creativecommons.org/licenses/by-nc/4.0/).
 
 ---
 
