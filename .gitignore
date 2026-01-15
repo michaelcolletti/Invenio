@@ -47,3 +47,7 @@ node_modules/
 *.temp
 *.swp
 *.swo
+
+# Remove inventory from showing in repo
+invenio.md
+
