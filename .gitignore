@@ -48,6 +48,10 @@ node_modules/
 *.swp
 *.swo
 
+# Friggin Apple 
+.DS_Store
+
+
 # Remove inventory from showing in repo
 invenio.md
 
